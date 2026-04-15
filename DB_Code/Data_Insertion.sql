@@ -5,11 +5,11 @@ INSERT INTO Authors (Name, Nationality, Year_of_birth, Year_of_death, Biography)
 VALUES 
 ('George Orwell', 'British', 1903, 1950, 'English novelist and essayist.'),
 ('J.K. Rowling', 'British', 1965, NULL, 'British author best known for Harry Potter.'),
-('Gabriel García Márquez', 'Colombian', 1927, 2014, 'Nobel Prize-winning author.');
+('Gabriel GarcÃ­a MÃ¡rquez', 'Colombian', 1927, 2014, 'Nobel Prize-winning author.');
 
 INSERT INTO Illustrators (Name, Nationality, Year_of_birth, Year_of_death, Biography)
 VALUES
-('Mary GrandPré', 'American', 1954, NULL, 'Illustrator of the U.S. Harry Potter editions.'),
+('Mary GrandPrÃ©', 'American', 1954, NULL, 'Illustrator of the U.S. Harry Potter editions.'),
 ('Quentin Blake', 'British', 1932, NULL, 'Illustrator known for his work with Roald Dahl.');
 
 INSERT INTO Translators (Name, Nationality, Year_of_birth, Year_of_death, Biography)
