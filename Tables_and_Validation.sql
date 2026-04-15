@@ -172,7 +172,7 @@ CREATE TABLE Users (
 	User_id INT IDENTITY(1,1) PRIMARY KEY,
 	First_name NVARCHAR(200) NOT NULL,
 	Last_name NVARCHAR(200) NOT NULL,
-	Telephone VARCHAR(20) NOT NULL,
+	Telephone VARCHAR(20) NOT NULL CHECK (Telephone NOT LIKE '%[^0-9]%'),
 	Sex VARCHAR(30) CHECK (Sex IN ('Feminine', 'Masculine', 'Neutral')),
 	Date_of_birth DATE,
 	Created_at DATE DEFAULT GETDATE() NOT NULL,
@@ -310,5 +310,42 @@ BEGIN
 	FROM Rating r
 	INNER JOIN inserted i ON r.ISBN = i.ISBN AND r.User_id = i.User_id;
 END;
-GO
 
+
+GO
+CREATE FUNCTION dbo.fn_SanitizePhone (@Phone VARCHAR(25))
+RETURNS VARCHAR(25)
+AS
+BEGIN
+    WHILE PATINDEX('%[^0-9]%', @Phone) > 0
+        SET @Phone = STUFF(@Phone, PATINDEX('%[^0-9]%', @Phone), 1, '');
+    RETURN @Phone;
+END;
+
+
+CREATE PROCEDURE dbo.ValidatePhoneNumber 
+    @RawNumber VARCHAR(25)
+AS
+BEGIN
+    DECLARE @Clean VARCHAR(25) = dbo.fn_SanitizePhone(@RawNumber);
+    DECLARE @CC VARCHAR(3), @NDC VARCHAR(5), @SN VARCHAR(10);
+    IF LEN(@Clean) < 7 OR LEN(@Clean) > 15
+    BEGIN
+        SELECT 'Invalid' AS Status, 'Wrong Length' AS Reason;
+        RETURN;
+    END
+
+    IF LEFT(@Clean, 1) = '1' AND LEN(@Clean) = 11
+    BEGIN
+        SET @CC = SUBSTRING(@Clean, 1, 1);
+        SET @NDC = SUBSTRING(@Clean, 2, 3); -- Area Code
+        SET @SN = SUBSTRING(@Clean, 5, 7);  -- Subscriber Number
+
+        -- Validate Area Code
+        IF LEFT(@NDC, 1) IN ('0', '1')
+            SELECT 'Invalid' AS Status, 'Invalid Area Code' AS Reason;
+        ELSE
+            SELECT 'Valid' AS Status, @CC AS Country, @NDC AS AreaCode, @SN AS Subscriber;
+    END
+    --TODO: Add ELSE IF blocks for other Country Codes
+END
